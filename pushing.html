@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git Push to GitHub: A Step-by-Step Guide</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #0056b3;
+        }
+        code {
+            background-color: #e0e0e0;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        pre {
+            background-color: #333;
+            color: #eee;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .step {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #ccc;
+        }
+        .step:last-child {
+            border-bottom: none;
+        }
+        .error-section {
+            background-color: #ffebeb;
+            border-left: 5px solid #e74c3c;
+            padding: 15px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .error-section h3 {
+            color: #e74c3c;
+            margin-top: 0;
+        }
+        .success-message {
+            background-color: #e6ffe6;
+            border-left: 5px solid #28a745;
+            padding: 15px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .note {
+            background-color: #f0f8ff;
+            border-left: 5px solid #2196f3;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Git Push to GitHub: A Step-by-Step Guide</h1>
+        <p>This document outlines the commands used to push your local project to a GitHub repository, including common errors and their solutions.</p>
+
+        <div class="note">
+            <h3>Before You Start:</h3>
+            <ul>
+                <li>Ensure Git is installed on your computer.</li>
+                <li>You need to be authenticated with GitHub. For HTTPS, this means generating and using a <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank">Personal Access Token (PAT)</a> as your password when prompted.</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h2>Step 1: Navigate to Your Project Directory</h2>
+            <p>Open your terminal or command prompt and move into your project's root folder (where <code>app.py</code> and other project files are).</p>
+            <pre><code>cd /path/to/your/flask_video_app_folder</code></pre>
+        </div>
+
+        <div class="step">
+            <h2>Step 2: Initialize a Git Repository (if new)</h2>
+            <p>If your project is not yet under Git version control, initialize it.</p>
+            <pre><code>git init</code></pre>
+            <p class="note">If you've already run <code>git init</code> for this project, skip this step.</p>
+        </div>
+
+        <div class="step">
+            <h2>Step 3: Create a <code>.gitignore</code> file (Crucial!)</h2>
+            <p>This file tells Git which files and folders to *ignore* and not upload to GitHub (e.g., virtual environments, database files, uploaded user content). Create a file named <code>.gitignore</code> in your project's root and add the following content:</p>
+            <pre><code># Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+lib/
+include/
+bin/
+pip-log.txt
+pip-delete-this-directory.txt
+.venv/
+
+# Flask-specific
+instance/
+.flaskenv
+
+# Database and Uploads
+database.db
+*.sqlite3
+uploads/
+</code></pre>
+        </div>
+
+        <div class="step">
+            <h2>Step 4: Add Your Files to the Staging Area</h2>
+            <p>Tell Git to start tracking all the relevant files in your current directory. This includes your code and the new <code>.gitignore</code> file.</p>
+            <pre><code>git add .</code></pre>
+        </div>
+
+        <div class="step">
+            <h2>Step 5: Commit Your Changes</h2>
+            <p>Save your changes as a snapshot in your local Git history. Provide a descriptive message.</p>
+            <pre><code>git commit -m "Initial commit of Flask Video Sharing App with .gitignore"</code></pre>
+        </div>
+
+        <div class="step">
+            <h2>Step 6: Link Your Local Repository to GitHub</h2>
+            <p>Tell your local Git where your remote GitHub repository is. Replace <code>&lt;YOUR_REPO_URL&gt;</code> with your actual GitHub repository URL (e.g., <code>https://github.com/CELESTAKIM/PYTHON_BEGINNER.git</code>).</p>
+            <pre><code>git remote add origin https://github.com/CELESTAKIM/PYTHON_BEGINNER.git</code></pre>
+            <p class="note">If you've previously added a remote named 'origin', you might see an error like "remote origin already exists". You can then skip this step, or use <code>git remote set-url origin &lt;YOUR_REPO_URL&gt;</code> if the URL is wrong.</p>
+        </div>
+
+        <div class="step">
+            <h2>Step 7: Push Your Code to GitHub</h2>
+            <p>This is where we attempt to send your local commits to the remote repository. This command pushes your local <code>main</code> branch to the <code>main</code> branch on GitHub.</p>
+            <pre><code>git push -u origin main</code></pre>
+
+            <h3>Possible Errors and How to Fix Them:</h3>
+
+            <div class="error-section">
+                <h3>Error 1: <code>error: src refspec main does not match any</code></h3>
+                <p><strong>Reason:</strong> Your local default branch is likely named <code>master</code>, but GitHub expects <code>main</code>.</p>
+                <p><strong>Solution:</strong> Rename your local <code>master</code> branch to <code>main</code>, then retry the push.</p>
+                <pre><code>git branch -M main
+git push -u origin main</code></pre>
+            </div>
+
+            <div class="error-section">
+                <h3>Error 2: <code>! [rejected] main -> main (fetch first)</code> or <code>(non-fast-forward)</code></h3>
+                <p><strong>Reason:</strong> The remote GitHub repository has changes (e.g., a README.md created when initializing the repo) that your local repository doesn't have. Git requires you to pull these changes first.</p>
+                <p><strong>Solution:</strong> Pull the remote changes into your local branch. Git will attempt to merge them.</p>
+                <pre><code>git pull origin main</code></pre>
+                <p class="note">If this results in a "fatal: refusing to merge unrelated histories" error, proceed to Error 3.</p>
+            </div>
+
+            <div class="error-section">
+                <h3>Error 3: <code>fatal: refusing to merge unrelated histories</code></h3>
+                <p><strong>Reason:</strong> Your local repository's history and the remote repository's history have no common ancestor. This often happens when you initialize an empty repo on GitHub and then a separate local repo, trying to link them.</p>
+                <p><strong>Solution:</strong> Explicitly tell Git to allow merging unrelated histories during the pull. This will create a merge commit.</p>
+                <pre><code>git pull origin main --allow-unrelated-histories</code></pre>
+                <p class="note"><strong>Important:</strong> After running this, Git might open a text editor (like Vim or Nano) for you to confirm the merge commit message. Simply **save and exit** the editor to proceed.</p>
+                <ul>
+                    <li><strong>To save and exit in Vim:</strong> Press <code>Esc</code>, then type <code>:wq</code>, then press <code>Enter</code>.</li>
+                    <li><strong>To save and exit in Nano:</strong> Press <code>Ctrl+X</code>, then <code>Y</code> (for Yes), then <code>Enter</code>.</li>
+                </ul>
+            </div>
+
+            <div class="success-message">
+                <h3>After Resolving Any Errors: Re-attempt Push</h3>
+                <p>Once you've successfully pulled and merged (if necessary), your local and remote histories are aligned. You can now push your changes.</p>
+                <pre><code>git push -u origin main</code></pre>
+                <p>You should see output similar to:</p>
+                <pre><code>Enumerating objects: ..., done.
+...
+To https://github.com/CELESTAKIM/PYTHON_BEGINNER.git
+   bc64a77..9fbdf7d  main -> main
+branch 'main' set up to track 'origin/main'.
+</code></pre>
+                <p>This means your code is now on GitHub!</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>How to Pull Changes Again (Standard Practice)</h2>
+            <p>Once your repository is set up, if you make changes on GitHub (e.g., editing a file directly, or another collaborator pushes changes), you'll need to pull those changes to your local machine before making new local commits and pushing.</p>
+            <pre><code>git pull origin main</code></pre>
+            <p>This command fetches changes from the <code>main</code> branch of your <code>origin</code> remote and merges them into your current local branch. Always pull before you start working on new changes to ensure you have the latest version.</p>
+        </div>
+
+        <div class="success-message">
+            <h2>Success!</h2>
+            <p>Your project is now on GitHub. Always remember the Git workflow:</p>
+            <ol>
+                <li><code>git pull origin main</code> (to get latest changes)</li>
+                <li>Make your changes to files</li>
+                <li><code>git add .</code> (to stage your changes)</li>
+                <li><code>git commit -m "Your descriptive message"</code> (to save locally)</li>
+                <li><code>git push -u origin main</code> (to send to GitHub)</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>
