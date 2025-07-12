@@ -1,0 +1,40 @@
+✅ QUICK FIX
+Let’s edit your app.py.
+
+1. Open app.py in VS Code or Notepad.
+Go to the bottom of the file and ensure you have this:
+
+python
+Copy
+Edit
+if __name__ == '__main__':
+    app.run(debug=True)
+If it’s missing or incorrect, add or fix it.
+Then save the file.
+
+2. Try Running Again
+Back in the terminal:
+
+bash
+Copy
+Edit
+python app.py
+You should now see something like:
+
+csharp
+Copy
+Edit
+ * Running on http://127.0.0.1:5000
+Open http://127.0.0.1:5000 in your browser.
+
+✅ Optional: Add This Version to Be Sure
+Replace the end of your app.py with this:
+
+python
+Copy
+Edit
+if __name__ == '__main__':
+    print("🔁 Starting Flask App on http://127.0.0.1:5000 ...")
+    app.run(debug=True)
+If this message doesn’t print when you run it, then app.py isn't being run correctly (maybe named wrong? or empty line/typo).
+
