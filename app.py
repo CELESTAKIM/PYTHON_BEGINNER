@@ -22,7 +22,7 @@ from werkzeug.utils import secure_filename
 
 # --- Configuration ---
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'thisisasecret' # IMPORTANT: Change this in production
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default_fallback_secret_key') # Get from environment, fallback for local dev if .env not used
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -553,4 +553,5 @@ if __name__ == '__main__':
         except Exception as e:
             print(f"Error ensuring database/directories: {e}")
 
-    app.run(host='0.0.0.0', port=5001, debug=True)
+   
+    app.run(host='0.0.0.0', port=5001, debug=False) # Or simply app.run() for default host/port if not explicitly needed
