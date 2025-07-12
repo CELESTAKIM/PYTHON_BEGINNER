@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header text-center">
+                <h2>Upload GIS Video</h2>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('video_upload') }}" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Video Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="folder_path" class="form-label">Folder Path/ID (Optional, e.g., Project A/Dataset B)</label>
+                        <input type="text" class="form-control" id="folder_path" name="folder_path">
+                    </div>
+                    <div class="mb-3">
+                        <label for="video_file" class="form-label">Select Video File (MP4, AVI, MOV)</label>
+                        <input class="form-control" type="file" id="video_file" name="video_file" accept=".mp4, .avi, .mov" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Upload Video</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

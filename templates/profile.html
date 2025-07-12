@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header text-center">
+                <h2>My Profile</h2>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('profile') }}" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3 text-center">
+                        <img src="{{ url_for('uploaded_profile_pic', filename=user.profile_pic) }}" alt="Profile Picture" class="img-thumbnail rounded-circle profile-pic-lg">
+                        <div class="mt-2">
+                            <label for="profile_pic" class="form-label">Change Profile Picture</label>
+                            <input class="form-control" type="file" id="profile_pic" name="profile_pic" accept=".png, .jpg, .jpeg, .gif">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="county" class="form-label">County</label>
+                        <input type="text" class="form-control" id="county" name="county" value="{{ user.county or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="school_company" class="form-label">School/Company</label>
+                        <input type="text" class="form-control" id="school_company" name="school_company" value="{{ user.school_company or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="linkedin" class="form-label">LinkedIn Profile URL</label>
+                        <input type="url" class="form-control" id="linkedin" name="linkedin" value="{{ user.linkedin or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="github" class="form-label">GitHub Profile URL</label>
+                        <input type="url" class="form-control" id="github" name="github" value="{{ user.github or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="twitter" class="form-label">Twitter Profile URL</label>
+                        <input type="url" class="form-control" id="twitter" name="twitter" value="{{ user.twitter or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="bio" class="form-label">Bio</label>
+                        <textarea class="form-control" id="bio" name="bio" rows="3">{{ user.bio or '' }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="experience" class="form-label">Experience</label>
+                        <textarea class="form-control" id="experience" name="experience" rows="3">{{ user.experience or '' }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="skills" class="form-label">Skills (comma-separated)</label>
+                        <input type="text" class="form-control" id="skills" name="skills" value="{{ user.skills or '' }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Update Profile</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Available Videos</h2>
+
+    {% if videos %}
+        <div class="row">
+            {% for video in videos %} {# <-- HERE'S THE CHANGE: Loop through the 'videos' list #}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ video.title }}</h5>
+                        <p class="card-text">Uploader: {{ video.uploader.username }}</p>
+                        <p class="card-text">Uploaded: {{ video.upload_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                        {% if video.user_id == session.user_id %}
+                            <p class="text-muted"> (Your video)</p>
+                            <a href="{{ url_for('view_video', video_id=video.id) }}" class="btn btn-primary btn-sm">View Your Video</a>
+                        {% elif video.id in requested_video_ids %}
+                            {% set request_status = 'pending' %}
+                            {% for req in video.access_requests %} {# Check the actual status from the request object #}
+                                {% if req.user_id == session.user_id %}
+                                    {% set request_status = req.status %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if request_status == 'approved' %}
+                                <a href="{{ url_for('view_video', video_id=video.id) }}" class="btn btn-success btn-sm">View Video (Access Approved)</a>
+                            {% elif request_status == 'pending' %}
+                                <button class="btn btn-warning btn-sm" disabled>Request Pending</button>
+                            {% elif request_status == 'denied' %}
+                                <button class="btn btn-danger btn-sm" disabled>Access Denied</button>
+                            {% endif %}
+                        {% else %}
+                            {% if video.approved %}
+                                <a href="{{ url_for('view_video', video_id=video.id) }}" class="btn btn-primary btn-sm">View Video</a>
+                            {% else %}
+                                <a href="{{ url_for('request_video', video_id=video.id) }}" class="btn btn-info btn-sm">Request Access</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %} {# <-- End the loop #}
+        </div>
+    {% else %}
+        <p>No approved videos available yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

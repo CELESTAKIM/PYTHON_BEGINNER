@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Admin Dashboard</h2>
+
+<ul class="nav nav-tabs mb-4" id="adminTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="true">Users</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="videos-tab" data-bs-toggle="tab" data-bs-target="#videos" type="button" role="tab" aria-controls="videos" aria-selected="false">Videos</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests" type="button" role="tab" aria-controls="requests" aria-selected="false">Video Requests</button>
+    </li>
+</ul>
+
+<div class="tab-content" id="adminTabContent">
+    <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
+        <h3>User Management</h3>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Profile Pic</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <img src="{{ url_for('uploaded_profile_pic', filename=user.profile_pic) }}" alt="Profile" class="profile-pic-thumbnail-sm">
+                    </td>
+                    <td>
+                        <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" class="btn btn-sm btn-info">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="tab-pane fade" id="videos" role="tabpanel" aria-labelledby="videos-tab">
+        <h3>Video Management</h3>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Uploader</th>
+                    <th>Path</th>
+                    <th>Folder/ID</th>
+                    <th>Upload Time</th>
+                    <th>Approved</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for video in videos %}
+                <tr>
+                    <td>{{ video.id }}</td>
+                    <td>{{ video.title }}</td>
+                    <td>{{ video.uploader.username }}</td>
+                    <td><a href="{{ url_for('uploaded_video', filename=video.path) }}" target="_blank">View Raw</a></td>
+                    <td>{{ video.folder_path or 'N/A' }}</td>
+                    <td>{{ video.upload_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        {% if video.approved %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <span class="badge bg-danger">No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="#" class="btn btn-sm btn-primary view-video-btn" data-video-url="{{ url_for('uploaded_video', filename=video.path) }}" data-video-title="{{ video.title }}">Preview</a>
+                        <a href="{{ url_for('admin_toggle_video_approval', video_id=video.id) }}" class="btn btn-sm {% if video.approved %}btn-warning{% else %}btn-success{% endif %}">Toggle Approval</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="tab-pane fade" id="requests" role="tabpanel" aria-labelledby="requests-tab">
+        <h3>Video Access Requests</h3>
+
+        <h4>Pending Requests</h4>
+        {% if pending_requests %}
+        <form action="#" method="POST" id="pendingRequestsForm">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAllPending"></th>
+                        <th>Request ID</th>
+                        <th>User</th>
+                        <th>Video Title</th>
+                        <th>Request Time</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in pending_requests %}
+                    <tr>
+                        <td><input type="checkbox" name="selected_requests" value="{{ req.id }}" class="request-checkbox"></td>
+                        <td>{{ req.id }}</td>
+                        <td>{{ req.requester.username }}</td>
+                        <td>{{ req.requested_video.title }}</td>
+                        <td>{{ req.request_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td><span class="badge bg-warning">{{ req.status }}</span></td>
+                        <td>
+                            <a href="{{ url_for('admin_review_request', request_id=req.id, action='approve') }}" class="btn btn-sm btn-success">Approve</a>
+                            <a href="{{ url_for('admin_review_request', request_id=req.id, action='deny') }}" class="btn btn-sm btn-danger">Deny</a>
+                            <a href="{{ url_for('admin_review_request', request_id=req.id, action='delete') }}" class="btn btn-sm btn-secondary" onclick="return confirm('Are you sure you want to delete this request?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="d-flex justify-content-start gap-2 mb-3">
+                <button type="button" class="btn btn-success" onclick="bulkAction('approve')">Approve Selected</button>
+                <button type="button" class="btn btn-danger" onclick="bulkAction('deny')">Deny Selected</button>
+                <button type="button" class="btn btn-warning" onclick="bulkAction('approve_all')">Approve All Pending</button>
+                <button type="button" class="btn btn-info" onclick="bulkAction('deny_all')">Deny All Pending</button>
+                <button type="button" class="btn btn-secondary" onclick="bulkAction('delete')">Delete Selected</button> {# Added delete selected #}
+            </div>
+        </form>
+        {% else %}
+            <p>No pending requests.</p>
+        {% endif %}
+
+        <h4 class="mt-4">Approved Requests</h4>
+        {% if approved_requests %}
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>User</th>
+                    <th>Video Title</th>
+                    <th>Request Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in approved_requests %}
+                <tr>
+                    <td>{{ req.id }}</td>
+                    <td>{{ req.requester.username }}</td>
+                    <td>{{ req.requested_video.title }}</td>
+                    <td>{{ req.request_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td><span class="badge bg-success">{{ req.status }}</span></td>
+                    <td>
+                           <a href="{{ url_for('admin_review_request', request_id=req.id, action='deny') }}" class="btn btn-sm btn-danger">Revert to Denied</a>
+                           <a href="{{ url_for('admin_review_request', request_id=req.id, action='delete') }}" class="btn btn-sm btn-secondary" onclick="return confirm('Are you sure you want to delete this request?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>No approved requests.</p>
+        {% endif %}
+
+        <h4 class="mt-4">Denied Requests</h4>
+        {% if denied_requests %}
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>User</th>
+                    <th>Video Title</th>
+                    <th>Request Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in denied_requests %}
+                <tr>
+                    <td>{{ req.id }}</td>
+                    <td>{{ req.requester.username }}</td>
+                    <td>{{ req.requested_video.title }}</td>
+                    <td>{{ req.request_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td><span class="badge bg-danger">{{ req.status }}</span></td>
+                    <td>
+                        <a href="{{ url_for('admin_review_request', request_id=req.id, action='approve') }}" class="btn btn-sm btn-success">Revert to Approved</a>
+                        <a href="{{ url_for('admin_review_request', request_id=req.id, action='delete') }}" class="btn btn-sm btn-secondary" onclick="return confirm('Are you sure you want to delete this request?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>No denied requests.</p>
+        {% endif %}
+
+    </div>
+</div>
+
+<div class="modal fade" id="videoViewerModal" tabindex="-1" aria-labelledby="videoViewerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoViewerModalLabel">Video Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="embed-responsive embed-responsive-16by9">
+                    <video id="videoPlayer" class="embed-responsive-item w-100" controls></video>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-info" id="fullscreenBtn">Fullscreen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/video_popup.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle select all checkbox for pending requests
+        const selectAllPending = document.getElementById('selectAllPending');
+        const requestCheckboxes = document.querySelectorAll('.request-checkbox');
+
+        if (selectAllPending) {
+            selectAllPending.addEventListener('change', function() {
+                requestCheckboxes.forEach(checkbox => {
+                    checkbox.checked = selectAllPending.checked;
+                });
+            });
+        }
+
+        // Consolidated and corrected bulk actions
+        window.bulkAction = function(actionType) {
+            const selectedIds = [];
+            requestCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    selectedIds.push(checkbox.value);
+                }
+            });
+
+            let confirmMessage = '';
+
+            if (actionType === 'approve') {
+                confirmMessage = 'Are you sure you want to APPROVE the selected requests?';
+                if (selectedIds.length === 0) {
+                    alert('Please select at least one request to approve.');
+                    return;
+                }
+            } else if (actionType === 'deny') {
+                confirmMessage = 'Are you sure you want to DENY the selected requests?';
+                if (selectedIds.length === 0) {
+                    alert('Please select at least one request to deny.');
+                    return;
+                }
+            } else if (actionType === 'delete') { // Added for selected delete
+                confirmMessage = 'Are you sure you want to DELETE the selected requests? This action cannot be undone.';
+                if (selectedIds.length === 0) {
+                    alert('Please select at least one request to delete.');
+                    return;
+                }
+            } else if (actionType === 'approve_all') {
+                confirmMessage = 'Are you sure you want to APPROVE ALL pending requests?';
+            } else if (actionType === 'deny_all') {
+                confirmMessage = 'Are you sure you want to DENY ALL pending requests?';
+            } else {
+                alert('Invalid action type.');
+                return;
+            }
+
+            if (confirm(confirmMessage)) {
+                fetch("{{ url_for('admin_bulk_review_requests') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        request_ids: selectedIds,
+                        action: actionType
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred during the bulk action.');
+                });
+            }
+        };
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">GIS Videos</h2>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for video in videos %}
+    <div class="col">
+        <div class="card h-100 video-card">
+            <div class="video-thumbnail-placeholder">
+                <img src="{{ url_for('static', filename='video_placeholder.png') }}" class="card-img-top" alt="Video Thumbnail">
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ video.title }}</h5>
+                <p class="card-text"><small class="text-muted">Uploaded by: {{ video.uploader.username }} on {{ video.upload_time.strftime('%Y-%m-%d') }}</small></p>
+                {% if video.folder_path %}
+                <p class="card-text"><small class="text-muted">Folder/ID: {{ video.folder_path }}</small></p>
+                {% endif %}
+                <div class="d-flex justify-content-between align-items-center">
+                    {% if video.approved %}
+                        <a href="#" class="btn btn-primary btn-sm view-video-btn" data-video-url="{{ url_for('uploaded_video', filename=video.path) }}" data-video-title="{{ video.title }}">View Video</a>
+                    {% else %}
+                        {% if video.user_id == session['user_id'] %}
+                            <span class="badge bg-info">Your Video (Pending Approval)</span>
+                        {% elif video.id in requested_video_ids and request.endpoint != 'admin_dashboard' %} {# Only show if user requested and not admin view #}
+                            {% set user_request = video.access_requests | selectattr('user_id', 'equalto', session['user_id']) | first %}
+                            {% if user_request %}
+                                {% if user_request.status == 'pending' %}
+                                    <span class="badge bg-warning">Request Pending</span>
+                                {% elif user_request.status == 'approved' %}
+                                    <a href="#" class="btn btn-success btn-sm view-video-btn" data-video-url="{{ url_for('uploaded_video', filename=video.path) }}" data-video-title="{{ video.title }}">View Video (Approved)</a>
+                                {% elif user_request.status == 'denied' %}
+                                    <span class="badge bg-danger">Request Denied</span>
+                                {% endif %}
+                            {% else %}
+                                <a href="{{ url_for('request_video', video_id=video.id) }}" class="btn btn-secondary btn-sm">Request Access</a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ url_for('request_video', video_id=video.id) }}" class="btn btn-secondary btn-sm">Request Access</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% if not videos %}
+    <div class="col-12">
+        <p>No approved videos available yet.</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="modal fade" id="videoViewerModal" tabindex="-1" aria-labelledby="videoViewerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoViewerModalLabel">Video Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="embed-responsive embed-responsive-16by9">
+                    <video id="videoPlayer" class="embed-responsive-item w-100" controls></video>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-info" id="fullscreenBtn">Fullscreen</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/video_popup.js') }}"></script>
+{% endblock %}
